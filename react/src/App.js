@@ -10,8 +10,11 @@ import VerifyProduct from "./components/VerifyProduct";
 import AddProduct from "./components/AddProduct";
 import GetContract from "./components/GetContract";
 import DeployContract from "./components/DeployContract";
+import VotingMembersList from "./components/VotingMembersList";
+import VotingForm from "./components/VotingFrom";
+import AllSelfOrganizationProducts from "./components/AllSelfOrganizationProducts"
 
-import "./App.css";
+import "./App.css"; // Import Tailwind CSS
 
 function App() {
   const [provider, setProvider] = useState(null);
@@ -25,7 +28,7 @@ function App() {
   }
 
   const loadBlockchainData = async () => {
-    const contractAddress = "0xa66c71e84d75bb1c37187b4ae4c1aee874dc16a8";
+    const contractAddress = "0x5B19A63a01b6d08a1Cc5eC3454fb1A13aBE10247";
     const contractABI = CentralABI.abi;
 
     try {
@@ -35,7 +38,7 @@ function App() {
           method: "eth_requestAccounts",
         });
       }
-      const provider = new ethers.providers.Web3Provider(ethereum);
+      const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
       setProvider(provider);
       //const network = await provider.getNetwork();
@@ -51,6 +54,7 @@ function App() {
   useEffect(() => {
     loadBlockchainData();
   });
+
   return (
     <Router>
       <Navigation
@@ -65,6 +69,16 @@ function App() {
           path="/createcontract"
           element={
             <DeployContract
+              account={account}
+              provider={provider}
+              central={central}
+            />
+          }
+        />
+        <Route
+          path="/AllSelfOrganizationProducts"
+          element={
+            <AllSelfOrganizationProducts
               account={account}
               provider={provider}
               central={central}
@@ -96,6 +110,26 @@ function App() {
           path="/verify"
           element={
             <VerifyProduct
+              account={account}
+              provider={provider}
+              central={central}
+            />
+          }
+        />
+        <Route
+          path="/VotingMembersList"
+          element={
+            <VotingMembersList
+              account={account}
+              provider={provider}
+              central={central}
+            />
+          }
+        />
+        <Route
+          path="/VotingForm"
+          element={
+            <VotingForm
               account={account}
               provider={provider}
               central={central}
