@@ -1,45 +1,47 @@
 import { useState, useRef } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import "./app.css";
+import * as sha256 from 'crypto-js/sha256';
 
 const AddProduct = ({ account, central }) => {
   const [companyContractAddress, setCompanyContractAddress] = useState("");
-  const [productId, setProductId] = useState("");
-  const [manufactureId, setManufactureId] = useState("");
-  const [productName, setProductName] = useState("");
-  const [productBrand, setProductBrand] = useState("");
-
   const [loading, setLoading] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState("");
+  const [value, setUrl] = useState(""); // State to hold QR code value
 
-  const [updateStatus, setUpdateStatus] = useState(false);
-
-  function showErrorMessage(error) {
+  const showErrorMessage = (error) => {
     setLoading(false);
     alert(`An error occurred while connecting to MetaMask: ${error.message}`);
-  }
+  };
 
   const handleInput1Change = (e) => {
     setCompanyContractAddress(e.target.value);
   };
 
-  const handleInput2Change = (e) => {
-    setProductId(e.target.value);
+  const addProducts = async () => {
+    try {
+      if (account && companyContractAddress) {
+        const timestamp = Date.now(); // Get current timestamp
+        const hashInput = `${account}-${companyContractAddress}-${timestamp}`;
+        const hashcode = sha256(hashInput).toString();
+        setUrl(hashcode); // Update the QR code value
+        setUpdateStatus("Validate the transaction through your wallet");
+        let transaction = await central.addProduct(companyContractAddress, hashcode);
+        setLoading(true);
+        await transaction.wait();
+        setUpdateStatus("Products Added");
+        setLoading(false);
+      } else {
+        throw Error("Please connect to a wallet and provide all the required fields");
+      }
+    } catch (error) {
+      console.error(error);
+      showErrorMessage(error);
+    }
   };
 
-  const handleInput3Change = (e) => {
-    setManufactureId(e.target.value);
-  };
-
-  const handleInput4Change = (e) => {
-    setProductName(e.target.value);
-  };
-
-  const handleInput5Change = (e) => {
-    setProductBrand(e.target.value);
-  };
-
-  const [value, setUrl] = useState("");
+  // Function to handle QR code generation
   const qrRef = useRef();
+
   const downloadQRCode = (e) => {
     e.preventDefault();
     let canvas = qrRef.current.querySelector("canvas");
@@ -50,10 +52,6 @@ const AddProduct = ({ account, central }) => {
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
-    setUrl("");
-  };
-  const qrCodeEncoder = (e) => {
-    setUrl(e.target.value);
   };
 
   const qrcode = (
@@ -66,111 +64,43 @@ const AddProduct = ({ account, central }) => {
     />
   );
 
-  const addProducts = async () => {
-    try {
-      const list = JSON.parse("[" + productId + "]");
-      if (account && companyContractAddress && list) {
-        setUpdateStatus("Validate the transaction through your wallet");
-        let transaction = await central.addproduct(
-          account,
-          companyContractAddress,
-          list
-        );
-        setLoading(true);
-        await transaction.wait();
-        setUpdateStatus("Products Added");
-        setLoading(false);
-      } else {
-        throw Error(
-          "Please check that you are connected to a wallet,and that you have provided all the fields"
-        );
-      }
-    } catch (error) {
-      console.log(error);
-      showErrorMessage(error);
-    }
-  };
-
   return (
-    <div className="AddProduct">
-      <h3 className="Component__title">Add Products</h3>
-      <div className="Component__form">
-        <div className="form__content">
-          <label className="form__label">Enter Company contract address</label>
+    <div className="min-h-screen bg-gradient-to-r from-yellow-200 via-purple-200 to-white flex flex-col items-center justify-center p-8 border-black border-2">
+      <h3 className="text-lg font-bold mb-4">Add Products</h3>
+      <div className="w-full max-w-md bg-white p-4 rounded-lg shadow-lg">
+        {/* Input fields */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Enter Company contract address</label>
           <input
             type="text"
-            className="form__input"
+            className="mt-1 block w-full border border-black rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             value={companyContractAddress}
             onChange={handleInput1Change}
           />
         </div>
-        <div className="form__content">
-          <label className="form__label">Enter Product id</label>
-          <input
-            type="text"
-            className="form__input"
-            value={productId}
-            onChange={handleInput2Change}
-          />
-        </div>
-        <div className="form__content">
-          <label className="form__label">Enter Manufacture id</label>
-          <input
-            type="text"
-            className="form__input"
-            value={manufactureId}
-            onChange={handleInput3Change}
-          />
-        </div>
-        <div className="form__content">
-          <label className="form__label">Enter Product Name</label>
-          <input
-            type="text"
-            className="form__input"
-            value={productName}
-            onChange={handleInput4Change}
-          />
-        </div>
-        <div className="form__content">
-          <label className="form__label">Enter Product Brand</label>
-          <input
-            type="text"
-            className="form__input"
-            value={productBrand}
-            onChange={handleInput5Change}
-          />
-        </div>
-        <button className="button__toggle form__button" onClick={addProducts}>
-          Add Product
+        {/* Add Product button */}
+        <button className="bg-indigo-500 text-white py-2 px-4 rounded-lg transition duration-300 ease-in-out hover:bg-indigo-600" onClick={addProducts}>
+          {loading ? 'Adding Product...' : 'Add Product'}
         </button>
+        
+        {/* Loading or update status message */}
         {account ? (
-          <>
-            {loading ? (
-              <div>Transaction in progress..... It can take a few minutes</div>
-            ) : (
-              <p>{updateStatus}</p>
-            )}
-          </>
+          <p className="mt-2">{loading ? 'Transaction in progress... It can take a few minutes' : updateStatus}</p>
         ) : (
-          <h2>Connect to a crypto wallet first.......</h2>
+          <h2 className="mt-2">Connect to a crypto wallet first...</h2>
         )}
       </div>
 
-      <div className="qrcode__container">
-        <div ref={qrRef}>{qrcode}</div>
-        <div className="input__group">
-          <form onSubmit={downloadQRCode}>
-            <label>Enter Address</label>
-            <input
-              type="text"
-              value={value}
-              onChange={qrCodeEncoder}
-              placeholder="Address of Company"
-            />
-            <button type="submit" disabled={!value}>
-              Download QR code
-            </button>
-          </form>
+      {/* QR code container */}
+      <div className="mt-8">
+        <div ref={qrRef} className="mb-4">{qrcode}</div>
+        <div className="flex items-center justify-between">
+          {/* Download button */}
+          <button className="bg-indigo-500 text-white py-2 px-4 rounded-lg transition duration-300 ease-in-out hover:bg-indigo-600" onClick={downloadQRCode} disabled={!value}>
+            Download QR code
+          </button>
+          {/* QR code value */}
+          <div className="bg-gray-200 rounded-lg p-2">{value}</div>
         </div>
       </div>
     </div>
