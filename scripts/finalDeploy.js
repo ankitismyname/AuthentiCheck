@@ -1,25 +1,19 @@
-const { ethers } = require("hardhat");
+
+const hre = require("hardhat");
 
 async function main() {
-  //   const [deployer] = await ethers.getSigners();
-  //   console.log("Deploying contracts with the account:", deployer.address);
+  const Chai = await hre.ethers.getContractFactory("Central"); //fetching bytecode and ABI
+  const chai = await Chai.deploy(); //creating an instance of our smart contract
 
-  // Deploy Company contract
-  const ownerAddress = "0x49FC9C47B6BdAA2932f3Fcd4f638f69496Ee4b47";
-  const Company = await ethers.getContractFactory("Company");
-  const company = await Company.deploy(ownerAddress);
-  await company.deployed();
-  console.log("Company contract deployed to:", company.address);
+  await chai.waitForDeployment();//deploying your smart contract
 
-  // Deploy Central contract
-  const Central = await ethers.getContractFactory("Central");
-  const central = await Central.deploy();
-  await central.deployed();
-  console.log("Central contract deployed to:", central.address);
+  console.log("Deployed contract address:",`${chai.target}`);
+  
 }
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
