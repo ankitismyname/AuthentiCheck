@@ -1,13 +1,14 @@
 import React, { useState, useRef } from "react";
 import QrScanner from "qr-scanner";
 
-const VerifyProduct = ({ central }) => {
+const VerifyProductBySuppliers = ({ central }) => {
   const [inputType, setInputType] = useState("hash"); 
   const [inputValue, setInputValue] = useState(""); 
   const [productStatus, setProductStatus] = useState(null);
   const [file, setFile] = useState(null);
   const [data, setData] = useState(null);
   const [qrCodeSize, setQrCodeSize] = useState(200); // Initial size of the QR code
+  const [productInfo, setProductInfo] = useState(null); // State to hold product information
   const fileRef = useRef();
 
   const showErrorMessage = (error) => {
@@ -26,8 +27,14 @@ const VerifyProduct = ({ central }) => {
 
   const checkProduct = async () => {
     try {
-      const result = await central.verifyProduct(inputValue);
-      setProductStatus(result ? "valid" : "fake");
+      const result = await central.verifyProductByCustomer(inputValue);
+      if (result) {
+        setProductStatus("valid");
+        setProductInfo(result);
+      } else {
+        setProductStatus("fake");
+        setProductInfo(null);
+      }
     } catch (error) {
       console.error(error);
       showErrorMessage(error);
@@ -54,8 +61,8 @@ const VerifyProduct = ({ central }) => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-      <div className="bg-white p-8 rounded-lg shadow-md">
+    <div className="container mx-auto p-4">
+      <div className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-opacity-50 p-8 rounded-lg shadow-md">
         <h3 className="text-2xl mb-4">Verify Product</h3>
         <div className="space-y-4">
           <div>
@@ -96,7 +103,6 @@ const VerifyProduct = ({ central }) => {
               </div>
             ) : (
               <div>
-                <h2 className="text-center mb-4">Scan Your QR Code</h2>
                 <div className="card border-0">
                   <div className="card-body">
                     <button
@@ -135,9 +141,26 @@ const VerifyProduct = ({ central }) => {
             Verify
           </button>
           {productStatus && (
-            <p className="text-xl mt-4">
-              Result: {productStatus === "valid" ? "Valid Product" : "Fake Product"}
-            </p>
+            <div>
+              <p className="text-xl mt-4">
+                Result: {productStatus === "valid" ? "Valid Product" : "Fake Product"}
+              </p>
+              {productStatus === "valid" && productInfo && (
+                <div className="mt-4">
+                  <h4>Product Information:</h4>
+                  <p>Hash Code: {productInfo.hashCode}</p>
+                  <p>Manufacturer: {productInfo.manufacturer}</p>
+                  <p>Seller: {productInfo.seller}</p>
+                  <p>Seller Address: {productInfo.sellerAddress}</p>
+                  <p>Manufactured Time: {new Date(
+                        Number(productInfo.manufacturedTime) * 1000
+                      ).toLocaleString()}</p>
+                  <p>Registered Time: {new Date(
+                        Number(productInfo.registeredTime) * 1000
+                      ).toLocaleString()}</p>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -145,4 +168,4 @@ const VerifyProduct = ({ central }) => {
   );
 };
 
-export default VerifyProduct;
+export default VerifyProductBySuppliers;

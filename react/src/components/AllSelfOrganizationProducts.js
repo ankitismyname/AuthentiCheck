@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const GetContract = ({ central }) => {
+const GetContract = ({ central,account }) => {
   const [organizationProducts, setOrganizationProducts] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [productSearchQuery, setProductSearchQuery] = useState("");
@@ -16,7 +16,7 @@ const GetContract = ({ central }) => {
 
   const fetchOrganizationProducts = async () => {
     try {
-      const products = await central.getSelfCompanySmartContractInfo();
+      const products = await central.getAllSelfProducts(account);
       setOrganizationProducts(products);
       setErrorMessage("");
     } catch (error) {

@@ -2,19 +2,14 @@ import React, { useState } from "react";
 
 const VotingForm = ({ account, central }) => {
   const [newMemberAddress, setNewMemberAddress] = useState("");
-  const [newMemberUsername, setNewMemberUsername] = useState("");
   const [vote, setVote] = useState(true); // true for yes, false for no
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // State to track if a transaction is in progress
-  const [showFullError, setShowFullError] = useState(false); // State to toggle displaying full error
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showFullError, setShowFullError] = useState(false);
 
   const handleNewMemberAddressChange = (e) => {
     setNewMemberAddress(e.target.value);
-  };
-
-  const handleNewMemberUsernameChange = (e) => {
-    setNewMemberUsername(e.target.value);
   };
 
   const handleVoteChange = (e) => {
@@ -22,14 +17,14 @@ const VotingForm = ({ account, central }) => {
   };
 
   const submitVote = async () => {
-    setIsSubmitting(true); // Set submitting to true when starting the transaction
+    setIsSubmitting(true);
     try {
-      await central.voteToAddWallet(newMemberAddress, vote, newMemberUsername);
+      await central.voteToAddWallet(newMemberAddress, vote);
       setSuccessMessage("Vote submitted successfully");
     } catch (error) {
       setErrorMessage(error.message);
     }
-    setIsSubmitting(false); // Reset submitting state after transaction completes
+    setIsSubmitting(false);
   };
 
   const toggleFullError = () => {
@@ -46,16 +41,6 @@ const VotingForm = ({ account, central }) => {
           id="newMemberAddress"
           value={newMemberAddress}
           onChange={handleNewMemberAddressChange}
-          className="w-full mt-1 p-2 rounded-lg focus:outline-none focus:ring focus:ring-yellow-300"
-        />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="newMemberUsername" className="text-white">Enter organization's name:</label>
-        <input
-          type="text"
-          id="newMemberUsername"
-          value={newMemberUsername}
-          onChange={handleNewMemberUsernameChange}
           className="w-full mt-1 p-2 rounded-lg focus:outline-none focus:ring focus:ring-yellow-300"
         />
       </div>

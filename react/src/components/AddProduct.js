@@ -25,17 +25,18 @@ const AddProduct = ({ account, central }) => {
         const hashcode = sha256(hashInput).toString();
         setUrl(hashcode); // Update the QR code value
         setUpdateStatus("Validate the transaction through your wallet");
-        let transaction = await central.addProduct(companyContractAddress, hashcode);
         setLoading(true);
+        let transaction = await central.addProductByManufacturer(hashcode,companyContractAddress);
         await transaction.wait();
         setUpdateStatus("Products Added");
-        setLoading(false);
       } else {
         throw Error("Please connect to a wallet and provide all the required fields");
       }
     } catch (error) {
       console.error(error);
       showErrorMessage(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,10 +85,10 @@ const AddProduct = ({ account, central }) => {
         </button>
         
         {/* Loading or update status message */}
-        {account ? (
-          <p className="mt-2">{loading ? 'Transaction in progress... It can take a few minutes' : updateStatus}</p>
+        {loading ? (
+          <p className="mt-2">Transaction in progress... It can take a few minutes</p>
         ) : (
-          <h2 className="mt-2">Connect to a crypto wallet first...</h2>
+          <p className="mt-2">{updateStatus}</p>
         )}
       </div>
 
