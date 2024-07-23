@@ -4,7 +4,7 @@
 
 ## Live Demo
 
-You can explore the live application here: [AuthentiCheck Live](https://amoyauthenticheck1.netlify.app)
+You can explore the live application here: [AuthentiCheck Live](https://amoyauthenticheck.netlify.app)
 
 ## GitHub Repository
 
