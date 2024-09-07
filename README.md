@@ -62,7 +62,7 @@ To run the project locally, follow these steps:
    npm start
    ```
 
-5. Open your web browser and go to `http://localhost:3000` to view the application.
+5. Open your web browser and go to `https://amoyauthenticheck.netlify.app/` to view the application.
 
 ## Contributing
 
