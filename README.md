@@ -63,7 +63,6 @@ To run the project locally, follow these steps:
    ```
 
 5. Open your web browser and go to `https://amoyauthenticheck.netlify.app/` to view the application.
----
 ## Contributing
 
 Contributions are welcome! Please follow these guidelines:
@@ -73,7 +72,6 @@ Contributions are welcome! Please follow these guidelines:
 3. Commit your changes (`git commit -am 'Add new feature'`).
 4. Push to the branch (`git push origin feature/YourFeature`).
 5. Create a new Pull Request.
----
 ## Acknowledgments
 
 We would like to thank the following individuals and organizations for their support and contributions to the AuthentiCheck project:
